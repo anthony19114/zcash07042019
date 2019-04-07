@@ -1,65 +1,36 @@
-Zcash 2.0.4
-<img align="right" width="120" height="80" src="doc/imgs/logo.png">
-===========
+# Commercium
+Commercium platform
 
-What is Zcash?
---------------
+## Binaries can be downloaded at:
 
-[Zcash](https://z.cash/) is an implementation of the "Zerocash" protocol.
-Based on Bitcoin's code, it intends to offer a far higher standard of privacy
-through a sophisticated zero-knowledge proving scheme that preserves
-confidentiality of transaction metadata. Technical details are available
-in our [Protocol Specification](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf).
+https://continuousintegration.commercium.net/Release/
 
-This software is the Zcash client. It downloads and stores the entire history
-of Zcash transactions; depending on the speed of your computer and network
-connection, the synchronization process could take a day or more once the
-blockchain has reached a significant size.
+## Technical Specifications
+- Algorithm: Equihash
+- Max Supply: 58 million CMM
+- Block Time: 60 Seconds
+- Block Reward: 8 CMM, 35% with an additional 10% to Masternode over next 60 days to settle at 45% Masternode. 7.5% to Founders and Stake wallet.
+### Dependencies
 
-<p align="center">
-  <img src="doc/imgs/zcashd_screen.gif" height="500">
-</p>
-
-#### :lock: Security Warnings
-
-See important security warnings on the
-[Security Information page](https://z.cash/support/security/).
-
-**Zcash is experimental and a work-in-progress.** Use at your own risk.
-
-####  :ledger: Deprecation Policy
-
-This release is considered deprecated 16 weeks after the release day. There
-is an automatic deprecation shutdown feature which will halt the node some
-time after this 16 week time period. The automatic feature is based on block
-height.
-
-## Getting Started
-
-Please see our [user guide](https://zcash.readthedocs.io/en/latest/rtd_pages/rtd_docs/user_guide.html) for joining the main Zcash network.
-
-### Need Help?
-
-* :blue_book: See the documentation at the [ReadtheDocs](https://zcash.readthedocs.io)
-  for help and more information.
-* :incoming_envelope: Ask for help on the [Zcash](https://forum.z.cash/) forum.
-* :mag: Chat with our support community on [Rocket.Chat](https://chat.zcashcommunity.com/channel/user-support)
-
-Participation in the Zcash project is subject to a
-[Code of Conduct](code_of_conduct.md).
-
-### Building
-
-Build Zcash along with most dependencies from source by running:
-
-```
-./zcutil/build.sh -j$(nproc)
+```shell
+#The following packages are needed:
+sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev unzip git python python-zmq zlib1g-dev wget libcurl4-gnutls-dev bsdmainutils automake curl
 ```
 
-Currently only Linux is officially supported.
+#### Linux
+```shell
+git clone https://github.com/CommerciumBlockchain/CommerciumContinuum
+cd CommerciumContinuum
+./zcutil/fetch-params.sh
+./zcutil/build.sh
+```
 
-License
--------
+#### MacOSX and Windows
+Review Dockerfile
 
-For license information see the file [COPYING](COPYING).
-# zcash07042019
+
+#### Windows and Linux VPS Masternode Setup
+https://github.com/CommerciumBlockchain/masternode-scripts
+
+#### Linux to Linux VPS Masternode Setup
+https://www.commercium.net/masternode-guide/
