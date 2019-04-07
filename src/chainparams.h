@@ -75,6 +75,8 @@ public:
     uint256 SproutValuePoolCheckpointBlockHash() const { return hashSproutValuePoolCheckpointBlock; }
     bool ZIP209Enabled() const { return fZIP209Enabled; }
 
+    int EnforceBlockUpgradeMajority() const { return nEnforceBlockUpgradeMajority; }
+
     const CBlock& GenesisBlock() const { return genesis; }
     /** Make miner wait to have peers to avoid wasting work */
     bool MiningRequiresPeers() const { return fMiningRequiresPeers; }
@@ -82,6 +84,7 @@ public:
     bool DefaultConsistencyChecks() const { return fDefaultConsistencyChecks; }
     /** Policy: Filter transactions that do not match well-defined patterns */
     bool RequireStandard() const { return fRequireStandard; }
+    int64_t MaxTipAge() const { return nMaxTipAge; }
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
     unsigned int EquihashN() const { return nEquihashN; }
     unsigned int EquihashK() const { return nEquihashK; }
@@ -98,20 +101,32 @@ public:
     const std::string& Bech32HRP(Bech32Type type) const { return bech32HRPs[type]; }
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
+    int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     /** Return the founder's reward address and script for a given block height */
+    std::string SporkKey() const { return strSporkKey; }
+    std::string ObfuscationPoolDummyAddress() const { return strObfuscationPoolDummyAddress; }
+    /** Headers first syncing is disabled */
+    bool HeadersFirstSyncingActive() const { return fHeadersFirstSyncingActive; };
+    int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
+    int64_t Budget_Fee_Confirmations() const { return nBudget_Fee_Confirmations; }
     std::string GetFoundersRewardAddressAtHeight(int height) const;
     CScript GetFoundersRewardScriptAtHeight(int height) const;
     std::string GetFoundersRewardAddressAtIndex(int i) const;
+    /** The masternode count that we will allow the see-saw reward payments to be off by */
+    int MasternodeCountDrift() const { return nMasternodeCountDrift; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    int GetNewTimeRule() const { return newTimeRule; }
 protected:
     CChainParams() {}
 
     Consensus::Params consensus;
     CMessageHeader::MessageStartChars pchMessageStart;
+    int nEnforceBlockUpgradeMajority = 20;
     //! Raw pub key bytes for the broadcast alert signing key.
     std::vector<unsigned char> vAlertPubKey;
     int nDefaultPort = 0;
+    long nMaxTipAge = 0;
     uint64_t nPruneAfterHeight = 0;
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
@@ -128,13 +143,22 @@ protected:
     bool fRequireStandard = false;
     bool fMineBlocksOnDemand = false;
     bool fTestnetToBeDeprecatedFieldRPC = false;
+    int nMasternodeCountDrift;
+    int nPoolMaxTransactions;
+    std::string strSporkKey;
+    bool fHeadersFirstSyncingActive;
+    std::string strObfuscationPoolDummyAddress;
+    int64_t nStartMasternodePayments;
+    int64_t nBudget_Fee_Confirmations;
     CCheckpointData checkpointData;
     std::vector<std::string> vFoundersRewardAddress;
+    int newTimeRule;
 
     CAmount nSproutValuePoolCheckpointHeight = 0;
     CAmount nSproutValuePoolCheckpointBalance = 0;
     uint256 hashSproutValuePoolCheckpointBlock;
     bool fZIP209Enabled = false;
+
 };
 
 /**
