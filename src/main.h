@@ -149,8 +149,8 @@ extern bool fAddressIndex;
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
 extern bool fCheckpointsEnabled;
-extern bool fLargeWorkForkFound;
-extern bool fLargeWorkInvalidChainFound;
+static bool fLargeWorkForkFound = false;
+static bool fLargeWorkInvalidChainFound = false;
 // TODO: remove this flag by structuring our code such that
 // it is unneeded for testing
 extern bool fCoinbaseEnforcedProtectionEnabled;

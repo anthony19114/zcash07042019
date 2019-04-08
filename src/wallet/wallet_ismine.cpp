@@ -36,6 +36,9 @@ isminetype IsMine(const CKeyStore &keystore, const CTxDestination& dest)
 
 isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
 {
+    if(keystore.HaveWatchOnly(scriptPubKey))
+        return ISMINE_WATCH_ONLY;
+
     vector<valtype> vSolutions;
     txnouttype whichType;
     if (!Solver(scriptPubKey, whichType, vSolutions)) {

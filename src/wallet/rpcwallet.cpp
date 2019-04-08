@@ -4674,7 +4674,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "z_importwallet",           &z_importwallet,           true  },
     // TODO: rearrange into another category
     { "disclosure",         "z_getpaymentdisclosure",   &z_getpaymentdisclosure,   true  },
-    { "disclosure",         "z_validatepaymentdisclosure", &z_validatepaymentdisclosure, true }
+    { "disclosure",         "z_validatepaymentdisclosure", &z_validatepaymentdisclosure, true },
+    {"commercium",          "obfuscation",              &obfuscation,              false }
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)
