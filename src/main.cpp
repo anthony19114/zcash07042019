@@ -52,7 +52,7 @@
 using namespace std;
 
 #if defined(NDEBUG)
-# error "Zcash cannot be compiled without assertions."
+# error "Commercium cannot be compiled without assertions."
 #endif
 
 #include "librustzcash.h"
@@ -115,7 +115,7 @@ static void CheckBlockIndex();
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Zcash Signed Message:\n";
+const string strMessageMagic = "Commercium Signed Message:\n";
 
 // Internal stuff
 namespace {
@@ -3962,8 +3962,15 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
         return state.DoS(50, error("CheckBlockHeader(): proof of work failed"),
                          REJECT_INVALID, "high-hash");
 
+
+    unsigned int nHeight = chainActive.Height();
+    const CChainParams& chainParams = Params();
     // Check timestamp
-    if (block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+    if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+        return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                             REJECT_INVALID, "time-too-new");
+    //new rule
+    else if (nHeight >= chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 10 * 60)
         return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
                              REJECT_INVALID, "time-too-new");
 
@@ -4147,7 +4154,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     // In Zcash this has been enforced since launch, except that the genesis
     // block didn't include the height in the coinbase (see Zcash protocol spec
     // section '6.8 Bitcoin Improvement Proposals').
-    if (nHeight > 0)
+   if (nHeight > Params().EnforceBlockUpgradeMajority())
     {
         CScript expect = CScript() << nHeight;
         if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
@@ -4156,7 +4163,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         }
     }
 
-    // Coinbase transaction must include an output sending 20% of
+    // Coinbase transaction must include an output sending 7.5% of
     // the block reward to a founders reward script, until the last founders
     // reward block is reached, with exception of the genesis block.
     // The last founders reward block is defined as the block just before the
@@ -4166,9 +4173,19 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
         BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
             if (output.scriptPubKey == Params().GetFoundersRewardScriptAtHeight(nHeight)) {
-                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) / 5)) {
-                    found = true;
-                    break;
+                if(nHeight < consensusParams.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
+                {
+                  if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) / 20)) {
+                      found = true;
+                      break;
+                  }
+                }
+                else
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 7.5 / 100)) {
+                        found = true;
+                        break;
+                    }
                 }
             }
         }

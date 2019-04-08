@@ -404,8 +404,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
  * Check if transaction is final and can be included in a block with the
  * specified height and time. Consensus critical.
  */
-bool IsFinalTx(const CTransaction& tx, int nBlockHeight = 0, int64_t nBlockTime = 0);
-
+bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime);
 /**
  * Check if transaction is expired and can be included in a block with the
  * specified height. Consensus critical.
@@ -501,7 +500,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
  * If dbp is non-NULL, the file is known to already reside on disk
  */
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp = NULL);
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp);
 bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
 
 

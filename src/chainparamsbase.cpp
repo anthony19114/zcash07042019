@@ -17,7 +17,7 @@ class CBaseMainParams : public CBaseChainParams
 public:
     CBaseMainParams()
     {
-        nRPCPort = 8232;
+        nRPCPort = 12020;
     }
 };
 static CBaseMainParams mainParams;
@@ -30,7 +30,7 @@ class CBaseTestNetParams : public CBaseChainParams
 public:
     CBaseTestNetParams()
     {
-        nRPCPort = 18232;
+        nRPCPort = 22020;
         strDataDir = "testnet3";
     }
 };
@@ -44,7 +44,7 @@ class CBaseRegTestParams : public CBaseChainParams
 public:
     CBaseRegTestParams()
     {
-        nRPCPort = 18232;
+        nRPCPort = 32020;
         strDataDir = "regtest";
     }
 };

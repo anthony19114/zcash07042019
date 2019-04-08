@@ -987,15 +987,13 @@ bool CWallet::GetVinAndKeysFromOutput(COutput out, CTxIn& txinRet, CPubKey& pubK
 
     CTxDestination address1;
     ExtractDestination(pubScript, address1);
-    CBitcoinAddress address2(address1);
-
-    CKeyID keyID;
-    if (!address2.GetKeyID(keyID)) {
+    const CKeyID *keyID = boost::get<CKeyID>(&address1);
+    if (!keyID) {
         LogPrintf("CWallet::GetVinAndKeysFromOutput -- Address does not refer to a key\n");
         return false;
     }
 
-    if (!GetKey(keyID, keyRet)) {
+    if (!GetKey(*keyID, keyRet)) {
         LogPrintf("CWallet::GetVinAndKeysFromOutput -- Private key for address is not known\n");
         return false;
     }
@@ -2213,7 +2211,23 @@ CAmount CWalletTx::GetDenominatedCredit(bool unconfirmed, bool fUseCache) const
     int nDepth = GetDepthInMainChain(false);
     if (nDepth < 0) return 0;
 
-    bool isUnconfirmed = !IsFinalTx(*this) || (!IsTrusted() && nDepth == 0);
+        // CheckFinalTx() uses chainActive.Height()+1 to evaluate
+    // nLockTime because when IsFinalTx() is called within
+    // CBlock::AcceptBlock(), the height of the block *being*
+    // evaluated is what is used. Thus if we want to know if a
+    // transaction can be part of the *next* block, we need to call
+    // IsFinalTx() with one more than chainActive.Height().
+    const int nBlockHeight = chainActive.Height() + 1;
+
+    // Timestamps on the other hand don't get any special treatment,
+    // because we can't know what timestamp the next block will have,
+    // and there aren't timestamp applications where it matters.
+    // However this changes once median past time-locks are enforced:
+    const int64_t nBlockTime = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
+                             ? chainActive.Tip()->GetMedianTimePast()
+                             : GetAdjustedTime();
+
+    bool isUnconfirmed = !IsFinalTx(*this, nBlockHeight, nBlockTime) || (!IsTrusted() && nDepth == 0);
     if (unconfirmed != isUnconfirmed) return 0;
 
     if (fUseCache) {
@@ -2895,37 +2909,34 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
     return debit;
 }
 
-CAmount CWalletTx::GetCredit(const isminefilter& filter) const
+CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
 {
+    if (pwallet == 0)
+        return 0;
+
     // Must wait until coinbase is safely deep enough in the chain before valuing it
     if (IsCoinBase() && GetBlocksToMaturity() > 0)
         return 0;
 
-    int64_t credit = 0;
-    if (filter & ISMINE_SPENDABLE)
+    if (fUseCache && fAvailableCreditCached)
+        return nAvailableCreditCached;
+
+    CAmount nCredit = 0;
+    uint256 hashTx = GetHash();
+    for (unsigned int i = 0; i < vout.size(); i++)
     {
-        // GetBalance can assume transactions in mapWallet won't change
-        if (fCreditCached)
-            credit += nCreditCached;
-        else
+        if (!pwallet->IsSpent(hashTx, i))
         {
-            nCreditCached = pwallet->GetCredit(*this, ISMINE_SPENDABLE);
-            fCreditCached = true;
-            credit += nCreditCached;
+            const CTxOut &txout = vout[i];
+            nCredit += pwallet->GetCredit(txout, ISMINE_SPENDABLE);
+            if (!MoneyRange(nCredit))
+                throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
         }
     }
-    if (filter & ISMINE_WATCH_ONLY)
-    {
-        if (fWatchCreditCached)
-            credit += nWatchCreditCached;
-        else
-        {
-            nWatchCreditCached = pwallet->GetCredit(*this, ISMINE_WATCH_ONLY);
-            fWatchCreditCached = true;
-            credit += nWatchCreditCached;
-        }
-    }
-    return credit;
+
+    nAvailableCreditCached = nCredit;
+    fAvailableCreditCached = true;
+    return nCredit;
 }
 
 CAmount CWalletTx::GetImmatureCredit(bool fUseCache) const
@@ -3994,7 +4005,7 @@ bool CWallet::CreateCollateralTransaction(CMutableTransaction& txCollateral, std
 
     int vinNumber = 0;
     BOOST_FOREACH (CTxIn v, txCollateral.vin) {
-        if (!SignSignature(*this, v.prevPubKey, txCollateral, vinNumber, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY))) {
+        if (!SignSignature(*this, v.prevPubKey, txCollateral, vinNumber, 0, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY), consensusBranchId)) {
             BOOST_FOREACH (CTxIn v, vCoinsCollateral)
                 UnlockCoin(v.prevout);
 

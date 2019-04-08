@@ -457,7 +457,7 @@ static std::string FormatException(const std::exception* pex, const char* pszThr
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "Zcash";
+    const char* pszModule = "Commercium";
 #endif
     if (pex)
         return strprintf(
@@ -478,13 +478,13 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Zcash
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Zcash
-    // Mac: ~/Library/Application Support/Zcash
-    // Unix: ~/.zcash
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Commercium
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Commercium
+    // Mac: ~/Library/Application Support/Commercium
+    // Unix: ~/.commercium
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Zcash";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Commercium";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -496,10 +496,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     TryCreateDirectory(pathRet);
-    return pathRet / "Zcash";
+    return pathRet / "Commercium";
 #else
     // Unix
-    return pathRet / ".zcash";
+    return pathRet / ".commercium";
 #endif
 #endif
 }
@@ -665,7 +665,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "zcashd.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "commerciumd.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
@@ -938,7 +938,7 @@ void SetThreadPriority(int nPriority)
 std::string PrivacyInfo()
 {
     return "\n" +
-           FormatParagraph(strprintf(_("In order to ensure you are adequately protecting your privacy when using Zcash, please see <%s>."),
+           FormatParagraph(strprintf(_("In order to ensure you are adequately protecting your privacy when using Commercium, please see <%s>."),
                                      "https://z.cash/support/security/")) + "\n";
 }
 
