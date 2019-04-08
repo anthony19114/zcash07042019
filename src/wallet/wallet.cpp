@@ -4004,6 +4004,8 @@ bool CWallet::CreateCollateralTransaction(CMutableTransaction& txCollateral, std
     }
 
     int vinNumber = 0;
+    int nHeight = chainActive.Height() + 1;
+    auto consensusBranchId = CurrentEpochBranchId(nHeight, Params().GetConsensus());
     BOOST_FOREACH (CTxIn v, txCollateral.vin) {
         if (!SignSignature(*this, v.prevPubKey, txCollateral, vinNumber, 0, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY), consensusBranchId)) {
             BOOST_FOREACH (CTxIn v, vCoinsCollateral)
