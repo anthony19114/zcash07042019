@@ -324,7 +324,7 @@ libbitcoin_wallet_a_SOURCES = \
   masternode-payments.cpp \
   masternode-sync.cpp \
   masternodeconfig.cpp \
-  masternodeman.cpp
+  masternodeman.cpp \
   zcbenchmarks.cpp \
   zcbenchmarks.h \
   wallet/asyncrpcoperation_mergetoaddress.cpp \
